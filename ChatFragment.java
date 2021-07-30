@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ChatFragment#newInstance} factory method to
@@ -37,6 +40,46 @@ public class ChatFragment extends Fragment {
      * @return A new instance of fragment ChatFragment.
      */
     // TODO: Rename and change types and number of parameters
+
+    DatabaseReference reference;
+    String userId,otherId,key,user,other;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        reference= FirebaseDatabase.getInstance().getReference();
+        userId="1";
+        otherId="3";
+        sendMessage("selam");
+
+    }
+    public void sendMessage(String mesajbody)
+    {
+        user="mesajlar/"+userId+"/"+otherId;
+        other="mesajlar/"+otherId+"/"+userId;
+        key=reference.child("mesajlar").child(user).child(otherId).getKey();
+        Map map =send(mesajbody,userId);
+        Map map2=new HashMap();
+        map2.put(user+"/"+key,map);
+        map2.put(other+"/"+key,map);
+        reference.updateChildren(map2, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError error, DatabaseReference ref) {
+
+            }
+        });
+
+
+
+    }
+    public Map send(String mesajbody,String userId){
+        Map msj=new HashMap();
+        msj.put("mesaj",mesajbody);
+        msj.put("from",userId);
+        return msj;
+    }
+
     public static ChatFragment newInstance(String param1, String param2) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
